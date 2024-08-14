@@ -4,4 +4,4 @@ In this project, I performed advanced Data Analytics using R programming to anal
 
 An overview for this project is included below and the markdown code for the poster is provided in the repository.
 
-(Andrew Orlosky ePortfolio)[https://aorlosk1.myportfolio.com/]
+[Andrew Orlosky ePortfolio](https://aorlosk1.myportfolio.com/)
