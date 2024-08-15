@@ -1,0 +1,355 @@
+---
+title: A Study of United States Soil Moisture and Related Climate Factors on Agricultural Productivity
+title_textsize: "90pt"
+
+author:
+  - name: Vincent La
+    affil: 1
+  - name: Quinn Mulvihill
+    affil: 2
+  - name: Eric Zhu
+    affil: 3
+  - name: Andrew Orlosky
+    affil: 4
+  - name: Madison Collins
+    affil: 5
+  - name: Thomas Czarnopys
+    affil: 6
+affiliation:
+  - num: 1
+    address: University Honors
+  - num: 2
+    address: University of Maryland
+column_numbers: 3
+output: 
+  posterdown::posterdown_html:
+    self_contained: false
+bibliography: packages.bib
+poster_height: "36in"
+poster_width: "48in"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+```{css, echo=FALSE}
+
+body{
+  font-size: 30px
+}
+
+h1, h2, h3 {
+  text-align: center
+  font-size: 36px
+}
+
+```
+
+# Research Question
+How does soil moisture affect agricultural productivity across various regions in the United States? What trends are noticed when comparing productivity with related factors of temperature and precipitation annually?
+  
+# Abstract
+  
+  Soil moisture is vital for crop production as it provides nutrients for plants to grow and allows them to carry out necessary chemical processes. As climate change continues to increase temperature, prolonged droughts are becoming common, especially in the western US. With rising temperatures, soil moisture is likely to decrease, which has had a negative impact on agricultural productivity and put a strain on water resources, as shown by our research study.
+  
+# History of Soil Moisture Analysis
+  Since the early 20th century, soil moisture has been a major topic of discussion in the fields of agriculture, ecology, and botany. It was first recorded to help forecast drought and aridity in hopes to boost our agricultural production during growing seasons. We now recognize soil moisture as a determining factor in the pressing issue of climate change. Its correlation to precipitation and drought has brought up questions about whether ideal growing soil is sustainable through the threat of climate change (Berg and Sheffield).
+  Throughout history, farmers have tested soil moisture by picking up soil and feeling for water, however this was highly inefficient. This antiquated method was first replaced in 1843 with the invention of the gravimetric method of soil moisture measurement. The technique measures the weight of wet soil against the weight of the same soil after it has been dried. This method is still most commonly used amongst farmers in the United States and around the world (Johnson). In 1975 the Wilheit model was created, which is the first physical model describing the physics of microwave radiation in soil (de Jeu et al.). The Wilheit model was the beginning of satellite microwave sensors in determining soil moisture. 
+  
+# Modern Soil Moisture Technology
+  In the past few decades, many critical innovations made by the National Oceanic and Atmospheric Administration (NOAA) have modernized soil moisture data analysis.
+  
+- **Soil Moisture Operational Product System (SMOPS)**: NOAA achieved spatial coverage using microwave satellite remote sensing. Provides blended soil moisture data from different global sources in near real time. SMOPS has become a central tool for drought monitoring and weather forecast accuracy across the United States. <br>
+
+- **Soil Climate Analysis Network (SCAN)**: Designed by USDA to measure “soil moisture at different depths, air temperature, relative humidity, solar radiation, wind speed and direction, precipitation, and barometric pressure.” Over 200 stations in agricultural areas in the US. Each station measures “soil moisture at different depths, air temperature, relative humidity, solar radiation, wind speed and direction, precipitation, and barometric pressure.” Can detect and adapt to developing droughts, climate trends, changes in crop productivity, and other factors that impact agriculture. <br>
+
+- **European Space Agency’s Climate Change Initiative (ESA CCI SM v06.1)**: Utilizes microwave remote sensing to gather sensor information mounted on in space and airborne platforms (ESA). Fourteen sensors of two different types are used. Active sensors are scatterometers that use their own source of electromagnetic energy for measurement. Passive sensors are radiometers that use energy reflected from the earth’s surface for measurement. <br>
+
+<center> <h3> Microwave Instruments that Measure Soil Moisture </h3> </center>
+
+```{r, echo=FALSE, out.width="75%", fig.align="center"}
+knitr::include_graphics("G:/Shared drives/HNUH258A - Fall 2021/Phase2/Team4/ESA Picture.png")
+```
+
+Our research team used the ESA CCI SM dataset for determining a soil moisture trend with total factor productivity in the United States.
+
+
+
+
+
+# Materials and Methods of the Study
+
+  In this study, our main focus was to analyze soil moisture data across various regions and states in the US using the ESACCI Soil Moisture dataset. In order to bolster the reliability of our data set, we compared this data with relevant experimental variables of temperature (Fahrenheit = tempf, Celsius = tempc), precipitation, and total factor productivity by state and year since 1978.
+
+# Visualizations and Results
+
+<center> <h3> Texas Soil Moisture Data </h3> </center>
+
+```{r, echo=FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics("G:/Shared drives/HNUH258A - Fall 2021/Phase2/Team4/Texas Filtered.PNG")
+```
+
+This plot shows a raster brick of the ESA CCI Soil Moisture Dataset from Texas on September 26, 2004. In this visualization, green values represent higher soil moisture, while orange colors represent lower values where soil moisture is measured in volumetric units (m^3 water/m^3 soil). In our linear regression, we analyze the raster data generated from this dataset for every state in the U.S between 1978 and 2004. 
+
+```{r code, out.height='60%', out.width = '60%', echo = FALSE, message = FALSE, warning = FALSE, error = FALSE, fig.keep = 'all'}
+#set working directory to shared folder Data\JoiningData
+setwd("G:/Shared drives/HNUH258A - Fall 2021/Phase2/Team4/Data")
+#setwd("/Volumes/GoogleDrive/Shared drives/HNUH258A - Fall 2021/Phase2/Team4/Data")
+
+# load packages
+library(tidyverse)
+library(readxl)
+library(reviewr)
+library(countrycode)
+library(cdlTools)
+
+  fname <- "G:/Shared drives/HNUH258A - Fall 2021/Phase2/Team4/Data/Table 19 Indices of total factor productivity by State.xls"
+#  fname <- "/Volumes/GoogleDrive/Shared drives/HNUH258A - Fall 2021/Phase2/Team4/Data/Table 19 Indices of total factor productivity by State.xls"
+
+# reload data
+TFP <- read_excel(fname,sheet=1,range = "A6:AW53")
+
+TFP <- TFP[-c(1),]
+TFP <- TFP[-c(1),]
+
+TFP <- TFP %>%
+  pivot_longer(!Year, names_to = "State", values_to = "TFP") %>%
+  arrange(State) %>%
+  filter(Year >= 1978 & Year <= 2004) %>%
+  group_by(State, Year)
+  
+
+#load state temperature data
+
+   fname <- "G:/Shared drives/HNUH258A - Fall 2021/Phase2/Team4/Data/climdiv_state_year.csv"
+#    fname <- "/Volumes/GoogleDrive/Shared drives/HNUH258A - Fall 2021/Phase2/Team4/Data/climdiv_state_year.csv"
+state_temps <- read_csv(fname)
+
+state_temps <- state_temps %>%
+  mutate(State = cdlTools::fips(fips, to = 'abbreviation')) %>%
+  filter(Year >= 1978 & Year <= 2004) %>%
+  select(-fips)
+
+names(state_temps)[2] = 'tempf'
+
+TFP_joined <- TFP %>%
+  left_join_qc(state_temps, by = c("Year", "State"))
+
+#read in precip data
+library(readr)
+library(hash)
+
+fname <- "G:/Shared drives/HNUH258A - Fall 2021/Data/nClimDiv/climdiv-pcpnst-v1.0.0-20211104"
+#fname <- "/Volumes/GoogleDrive/Shared drives/HNUH258A - Fall 2021/Data/nClimDiv/climdiv-pcpnst-v1.0.0-20211104"
+
+#state code table values range from 1-50, excluding 49... according to state-readme.txt
+state_list = list("AL", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "ID", "IL", 
+                  "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS",
+                  "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH",
+                  "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA",
+                  "WA",  "WW", "WI", "WY", NULL, "AK")
+
+precip <- read_table(fname)
+#deleting empty column
+precip = subset(precip, select = -c(X14))
+
+colnames(precip) <- c("State", "January", "Feburary", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
+
+precip <- precip %>%
+  
+  #filter for precipitation data
+  filter(substr(State, 5,6) == "01") %>%
+  
+  #tidy data
+  pivot_longer(!State, names_to = "Month", values_to = "precip") %>%
+  
+  #create year and key columns, key corresponds to a state according to state-readme.txt
+  mutate(Year = as.integer(substr(State, 7,10))) %>%
+  mutate(key = as.integer(substr(State, 1,3))) %>%
+  filter(key <= 50) %>%
+  filter(Year >= 1978 & Year <= 2004) %>%
+  
+  #assign actual state names to State column
+  mutate(State = as.character(state_list[key])) %>%
+  
+  #summarize monthly data for annual average precip value for each year and state
+  group_by(State, Year) %>%
+  summarize("precip" = mean(precip))
+  
+
+#join precip data
+TFP_joined <- TFP_joined %>%
+  left_join_qc(precip, by = c("Year", "State"))
+
+
+ fname <- "G:/Shared drives/HNUH258A - Fall 2021/Phase2/Team4/Soil_Moisture_By_Year_Include_NA.csv"
+# fname <- "/Volumes/GoogleDrive/Shared drives/HNUH258A - Fall 2021/Phase2/Team4/Soil_Moisture_By_Year_Include_NA.csv"
+
+soil_moist <- read_csv(fname)
+
+#delete garbage row of 1s
+soil_moist <- soil_moist[-c(1),]
+
+#filter and tidy soil_moisture data
+soil_moist <- soil_moist %>%
+    pivot_longer(!State, names_to = "Year", values_to = "soil_moisture")  %>%
+    mutate(State = state.abb[match(State, state.name)]) %>%
+    mutate(Year = substr(Year, 2, 5))
+    
+
+class(soil_moist$Year) = "double"
+soil_moist <- filter(soil_moist, Year >= 1978 & Year <= 2004)
+
+#join soil_moist data
+TFP_joined <- TFP_joined %>%
+  left_join_qc(soil_moist, by = c("Year", "State")) %>%
+  filter(!is.na(soil_moisture)) %>%
+  rename(precip.x = "precip")
+
+
+Regression_frame <- data.frame(
+  State = c(1),
+  estimate = c(1),
+  estimate.1 = c(1),
+  r.squared = c(1),
+  adj.r.squared = c(1)
+)
+
+
+TFP_Texas <- filter(TFP_joined, State == "TX") %>%
+	rename(Precip = `precip.x`) %>%
+	rename(`Tempf` = tempf) %>%
+	rename(`Tempc` = tempc) %>%
+	rename(`Soil Moisture` = `soil_moisture`)
+
+knitr::kable(TFP_Texas[1:5, 1:7], caption = 'Texas Joined data.',align = 'c',"html", table.attr = "style='width:50%;'")
+
+library(broom)
+for (x in 1:length(state_list)){
+  
+  if(x == 46 | x == 49 | x==50){
+    next
+  }
+  TFP_joined_by_state <- filter(TFP_joined, State == state_list[x])
+
+  
+  linear_model = lm(TFP ~ soil_moisture + tempc + precip.x, data = TFP_joined_by_state) #linear regression with temperature, precip, and soil_moisture
+  sum <- summary(linear_model)
+  
+  tidy <- tidy(linear_model,conf.int=T)  # estimated coefficients and statistics
+  glancing <- glance(linear_model)           # r-squared and goodness of fit measures
+  # augment(linear_model)          # observed, predicted and residual values
+  
+  Inter_frame <- data.frame(
+    State = c(state_list[x]),
+    estimate = c(tidy[c(2), c(2)]),
+    estimate.1 = c(tidy[c(1), c(2)]),
+    r.squared = c(glancing[c(1), c(1)]),
+    adj.r.squared = c(glancing[c(1), c(2)])
+  )
+  
+  names(Inter_frame)[1] <- "State"
+
+  
+  
+  Regression_frame <- rbind(Regression_frame, Inter_frame)
+}
+Regression_frame <- Regression_frame[2:48,]
+names(Regression_frame)[2] <- "Coefficient"
+names(Regression_frame)[3] <- "Intercept"
+
+
+
+library(car)
+# avPlots(linear_model)
+
+
+# vvv Helpful article that seems like it will be useful vvv
+#https://www.statology.org/plot-multiple-linear-regression-in-r/
+library(usmap)
+
+
+# Loads in area of each state
+Area_Frame <- data.frame(
+  State = state.abb,
+  Area = state.area
+)
+
+# Joins area with regression frame
+Regression_frame <- Area_Frame %>% 
+  left_join_qc(Regression_frame, by = c("State")) %>%
+  na.omit()
+
+
+  fname <- "G:/Shared drives/HNUH258A - Fall 2021/Phase2/Team4/Data/Region of Us per State.csv"
+#  fname <- "/Volumes/GoogleDrive/Shared drives/HNUH258A - Fall 2021/Phase2/Team4/Data/Region of Us per State.csv"
+regions <- read_csv(fname)
+
+# adds the region of each state
+Regression_frame <- regions %>% 
+  select(-c(1)) %>%
+  rename(State = `State Code`) %>%
+  left_join_qc(Regression_frame, by = c("State")) %>%
+  na.omit()
+```
+This table shows how we joined and tidied our precipitation, temperature, soil moisture, and TFP data per year for each state. We acquired the TFP per state data from the United States Department of Agriculture (USDA) and joined it with the precipitation and temperature data from the Climatic Research Unit (CRU). Then, we combined these climate variables with the European Space Agency Climate Change Initiative Plus Soil Moisture (ESACCIPSM) data to create a useful dataset for our linear regression. 
+
+<center> <h3> Correlation between Temp, Precip, and Soil Moisture and Country Map of Coefficients </center> </h3>
+
+```{r plot1, out.width='50%', echo = FALSE, message = FALSE, warning = FALSE, error = FALSE, fig.keep = 'all'}
+knitr::include_graphics("G:/Shared drives/HNUH258A - Fall 2021/Phase2/Team4/TFP_climatevars.png")
+
+#PLOT1 (MAP of R^2 value per state)
+plot_usmap(data = Regression_frame[,c(1, 5)] %>% rename(state = State), values = "Coefficient", label_color = "red") + 
+  scale_fill_continuous(low = "orange", high = "dark green", name = "Coefficient", label = scales::comma) + 
+  ggtitle("Coefficient Value Per State")
+
+```
+
+- **Correlations with TFP:** These plots demonstrate the correlations between each climate variable and TFP across all states from the years 1978 to 2004, while holding all other climate variables constant. For instance, the TFP v.s soil moisture plot holds temperature and precipitation constant. The visuals suggest that precipitation and temperature have positive correlation with TFP, while soil moisture has a negative correlation, across the continental U.S. However, states often differ in both their TFPs and how their TFPs are impacted by climate variables. Analyzing these relationships on a state-by-state basis illustrates that soil moisture’s impact on TFP is often dependent on region.
+
+- **Map of US Soil Moisture Coefficients:** This map of the United States shows state level data of the soil moisture coefficient found in our linear model from 1978 to 2004. The coefficient describes the relationship between TFP and soil moisture holding temperature and precipitation constant. The green states have stronger, positive relationships between soil moisture and TFP while the orange states have weaker, negative relationships between the two variables. The coefficient is relevant because it describes the relationship that as the predictor variable increases, the dependent variable increases as well. It is interesting to note how as soil moisture increases in the West and Southeast, so does TFP, but as soil moisture increases in other regions like the Midwest and South, TFP decreases.
+
+<center> <h3> Linear Model of Soil Moisture Coefficient and R^2 values by U.S Region </center> </h3> 
+
+```{r plot2, out.width='50%', echo = FALSE, message = FALSE, warning = FALSE, error = FALSE, fig.keep = 'all'}
+ggplot(Regression_frame %>% filter(Area > 40000), aes(x = Region, y = Coefficient)) +
+  geom_boxplot()
+
+ggplot(Regression_frame, aes(x = r.squared, fill = Region)) +
+  geom_histogram(color = "black", binwidth = .05)
+ 
+```
+
+Our boxplot displayed that the Northeast and West regions of the United States had higher Soil moisture coefficients, while the other U.S. regions had coefficients closer to 0. Therefore, soil moisture has a greater impact on total factor productivity in the two regions with higher coefficients. The West Region has significantly more variance in coefficient than the rest of the regions.
+
+The Western United States showed the highest R-squared values on average of the U.S. regions. Stronger R-squared values in the West indicates that we were better able to predict the outcomes of total factor productivity as a result of changes in soil moisture than other regions. 
+ 
+
+# Conclusion
+Based on the results of our linear model, there was a greater correlation of TFP and soil moisture in the West and Southeast. While more soil moisture is beneficial for the Southeast and West, it has less of an effect on TFP in the Midwest. When compared with the confounding variables of precipitation and temperature change between 1978 -2004, it can be concluded that the lack of rainfall and increase in temperature directly affects soil moisture data. For example, as shown by the Texas data, the increase in soil moisture is directly related to the increase in precipitation and temperature. To improve agricultural productivity, the Midwest and Northeast should modernize their irrigation systems to effectively utilize soil moisture and maximize crop production.<br>
+
+**Potential Sources of Error:**
+-Some states did not have complete soil moisture data for every year, leading to potential error in the average soil moisture calculated
+-Due to limits in computational power, we were unable to average all 365 days of the year and instead took the average of 12 days, one for each month
+
+# References
+<font size = "4">
+  [1] “Automated Soil Climate Monitoring.” Natural Resources Conservation Service, United States Department of Agriculture, https://www.nrcs.usda.gov/wps/portal/wcc/home/aboutUs/monitoringPrograms/automatedSoilClimateMonitoring/.<br>
+  \*[2] Bell, Jesse E., Michael A. Palecki, C. Bruce Baker, William G. Collins, Jay H. Lawrimore, Ronald D. Leeper, Mark E. Hall, John Kochendorfer, Tilden P. Meyers, Tim Wilson, and Howard J. Diamond. " U.S. Climate Reference Network Soil Moisture and Temperature Observations". Journal of Hydrometeorology 14.3 (2013): 977-988. < https://doi.org/10.1175/JHM-D-12-0146.1>. Web. 29 Nov. 2021.<br>
+  \*[3] Berg, A., Sheffield, J. “Climate Change and Drought: the Soil Moisture Perspective”. Curr Clim Change Rep 4, 2018, 180–191. https://doi.org/10.1007/s40641-018-0095-0<br>
+  \*[4] De Jeu, R.A.M., Wagner, W., Holmes, T.R.H. et al. “Global Soil Moisture Patterns Observed by Space Borne Microwave Radiometers and Scatterometers”. Surv Geophys, 2008, 29, 399–420. https://doi.org/10.1007/s10712-008-9044-0<br>
+  [5] Dorigo, W.A., et.al. (2017). ESA CCI Soil Moisture for improved Earth system understanding: State-of-the art and future directions, Remote Sensing of Environment. https://doi.org/10.1016/j.rse.2017.07.001.<br>
+  [6] Gruber, A., et.al. (2019), Evolution of the ESA CCI Soil Moisture climate data records and their underlying merging methodology, Earth System Science Data, 11, 717-739, https://doi.org/10.5194/essd-11-717-2019<br>
+  [7] Harris, I., Osborn, T.J., Jones, P. et al. Version 4 of the CRU TS monthly high-resolution gridded multivariate climate dataset. Sci Data 7, 109 (2020).<br>
+  [8]  Johnson, A. I. “Methods of Measuring Soil Moisture in the Field.” PUBS. US Government Printing Office, 1962, 2-12. https://pubs.usgs.gov/wsp/1619u/report.pdf.<br>
+  [9] “New techniques produce better information on drought and flood conditions.” National Oceanic and Atmospheric, 2019. https://www.ncei.noaa.gov/news/new-understanding-soil-moisture<br>
+  [10] USDA Economic Research Service, International Agricultural Productivity: TFP indices and components for countries, regions, countries grouped by income level, and the world, 1961-2019,https://www.ers.usda.gov/data-products/international-agricultural-productivity/, (Links to an external site.) downloaded November, 2021.<br>
+  [11] Van der Schalie, R., et al. "ESA Climate Change Initiative plus Soil Moisture
+Product User Guide." Earth Observation Data Centre for Water Resources
+Monitoring (EODC), 16 Apr. 2021, www.esa-soilmoisture-cci.org/sites/default/
+files/documents/public/CCI%20SM%20v06.1%20documentation/
+ESA_CCI_SM_D4.2_v2_Product_Users_Guide_v06.1_i1.0.pdf. Accessed 29 Nov.2021.<br>
+  [12] “Welcome to the Microwave Remote Sensing Group.” Microwave Remote Sensing, Department of Geodesy and Geoinformation, 2021, https://mrs.geo.tuwien.ac.at/.<br>
+  \*[13] Yin, Jifu; Zhan, Xiwu; Liu, Jicheng. “NOAA Satellite Soil Moisture Operational Product System (SMOPS) Version 3.0 Generates Higher Accuracy Blended Satellite Soil Moisture.” Remote Sens. 2020, 2861. https://www.mdpi.com/2072-4292/12/17/2861/htm
+  </font>
